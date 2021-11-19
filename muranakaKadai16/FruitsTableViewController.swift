@@ -39,53 +39,23 @@ class FruitsTableViewController: UITableViewController {
 
     // MARK: - Segue
     @IBAction private func addFruit(segue: UIStoryboardSegue) {
+        let addVC = segue.source as! AddFruitViewController // swiftlint:disable:this force_cast
+        
+        guard let result = addVC.result else { return }
+        
+        switch result {
+        case .save(let name):
+            guard !name.isEmpty else { return }
+            fruits.append(Fruit(name: name, isCheck: false))
+            tableView.insertRows(
+                at: [IndexPath(row: fruits.count - 1, section: 0)],
+                with: .top
+            )
+        case .cancel:
+            fatalError()
+        }
     }
 
     @IBAction private func cancel(segue: UIStoryboardSegue) {
-    }
-// 下記の　SwiftLintの　warningの意味の理解はできたのですが、中のメソッドのスッキリしたコードの書き方がわかりませんでした。ご教授いただきたいです。
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let identifier = segue.identifier else { return }
-
-        switch identifier {
-        case "AddSegue":
-            let nav = segue.destination as! UINavigationController // swiftlint:disable:this force_cast
-            let addVC = nav.topViewController as! AddFruitViewController // swiftlint:disable:this force_cast
-
-            addVC.onViewDidDisappear = {[weak self] result in
-                guard let strongSelf = self else { return }
-
-                switch result {
-                case .save(let name):
-                    guard !name.isEmpty else { return }
-                    strongSelf.fruits.append(Fruit(name: name, isCheck: false))
-                    strongSelf.tableView.insertRows(
-                        at: [IndexPath(row: strongSelf.fruits.count - 1, section: 0)],
-                        with: .top
-                    )
-                case.cancel:
-                    break
-                }
-            }
-
-        case "EditSegue":
-            let nav = segue.destination as! UINavigationController // swiftlint:disable:this force_cast
-            let addVC = nav.topViewController as! AddFruitViewController // swiftlint:disable:this force_cast
-            guard let indexPath = sender as? IndexPath else { return }
-            addVC.selectedFruit = fruits[indexPath.row]
-            addVC.onViewDidDisappear = {[weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .save(let name):
-                    guard !name.isEmpty else { return }
-                    strongSelf.fruits[indexPath.row].name = name
-                    strongSelf.tableView.reloadRows(at: [indexPath], with: .right)
-                case.cancel:
-                    break
-                }
-            }
-        default:
-            break
-        }
     }
 }

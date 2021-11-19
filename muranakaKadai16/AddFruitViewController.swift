@@ -17,9 +17,7 @@ class AddFruitViewController: UIViewController {
 
     var selectedFruit: Fruit?
 
-    private var result: Result?
-
-    var onViewDidDisappear: (Result) -> Void = { _ in }
+    private(set) var result: Result?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,15 +26,11 @@ class AddFruitViewController: UIViewController {
 
     @IBAction private func saveFruit(_ sender: Any) {
         result = .save(fruitTextField.text ?? "")
-        guard let result = result else { return }
-        onViewDidDisappear(result)
         performSegue(withIdentifier: "SaveSegue", sender: nil)
     }
 
     @IBAction private func cancel(_ sender: Any) {
         result = .cancel
-        guard let result = result else { return }
-        onViewDidDisappear(result)
         performSegue(withIdentifier: "CancelSegue", sender: nil)
     }
 }

@@ -43,7 +43,7 @@ class FruitsTableViewController: UITableViewController {
 
     @IBAction private func cancel(segue: UIStoryboardSegue) {
     }
-// 下記の　SwiftLintの　warningの意味の理解はできたのですが、中のメソッドのスッキリしたコードの書き方がわかりませんでした。ご教授いただきたいです。
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let identifier = segue.identifier else { return }
 
@@ -51,8 +51,10 @@ class FruitsTableViewController: UITableViewController {
         case "AddSegue":
             let nav = segue.destination as! UINavigationController // swiftlint:disable:this force_cast
             let addVC = nav.topViewController as! AddFruitViewController // swiftlint:disable:this force_cast
+            
+            addVC.mode = .add
 
-            addVC.onViewDidDisappear = {[weak self] result in
+            addVC.onSave = {[weak self] result in
                 guard let strongSelf = self else { return }
 
                 switch result {
@@ -61,25 +63,27 @@ class FruitsTableViewController: UITableViewController {
                     strongSelf.fruits.append(Fruit(name: name, isCheck: false))
                     strongSelf.tableView.insertRows(
                         at: [IndexPath(row: strongSelf.fruits.count - 1, section: 0)],
-                        with: .top
+                        with: .automatic
                     )
                 case.cancel:
                     break
                 }
             }
-
+            
         case "EditSegue":
             let nav = segue.destination as! UINavigationController // swiftlint:disable:this force_cast
             let addVC = nav.topViewController as! AddFruitViewController // swiftlint:disable:this force_cast
             guard let indexPath = sender as? IndexPath else { return }
-            addVC.selectedFruit = fruits[indexPath.row]
-            addVC.onViewDidDisappear = {[weak self] result in
+            
+            addVC.mode = .edit(fruits[indexPath.row].name)
+            
+            addVC.onSave = {[weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                 case .save(let name):
                     guard !name.isEmpty else { return }
                     strongSelf.fruits[indexPath.row].name = name
-                    strongSelf.tableView.reloadRows(at: [indexPath], with: .right)
+                    strongSelf.tableView.reloadRows(at: [indexPath], with: .automatic)
                 case.cancel:
                     break
                 }

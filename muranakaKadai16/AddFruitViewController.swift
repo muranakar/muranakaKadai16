@@ -8,6 +8,11 @@
 import UIKit
 
 class AddFruitViewController: UIViewController {
+    enum Mode {
+        case add
+        case edit(String)
+    }
+    
     enum Result {
         case save(String)
         case cancel
@@ -15,22 +20,30 @@ class AddFruitViewController: UIViewController {
 
     @IBOutlet weak private var fruitTextField: UITextField!
 
-    var selectedFruit: Fruit?
-
-    private(set) var result: Result?
+    var onSave: (Result) -> Void = { _ in }
+    
+    var mode: Mode?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        fruitTextField.text = selectedFruit?.name
+        
+        guard let mode = mode else { return }
+        
+        switch mode {
+        case .add:
+            break
+        case .edit(let name):
+            fruitTextField.text = name
+        }
     }
 
     @IBAction private func saveFruit(_ sender: Any) {
-        result = .save(fruitTextField.text ?? "")
+        onSave(.save(fruitTextField.text ?? ""))
         performSegue(withIdentifier: "SaveSegue", sender: nil)
     }
 
     @IBAction private func cancel(_ sender: Any) {
-        result = .cancel
+        onSave(.cancel)
         performSegue(withIdentifier: "CancelSegue", sender: nil)
     }
 }
